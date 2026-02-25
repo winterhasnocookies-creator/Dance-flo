@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+	<meta charset="UTF-8" />
+
+	<meta name="viewport"
+
+      	content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+	<title>Dance Flo - Selection Mode</title>
+
+	<script src="https://cdn.tailwindcss.com"></script>
+
+	<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Outfit:wght@400;900&display=swap" rel="stylesheet">
+
+	<link rel="stylesheet" href="styles.css">
+
+</head>
+
+<body>
+
+
+	<div id="loading-overlay">
+
+    	<div style="font-family: 'Outfit', sans-serif; font-size: 3rem; font-weight: 900; text-align: center;">TAGGING THE WALLS...</div>
+
+	</div>
+
+
+	<div id="countdown-container">
+
+    	<div id="countdown-text" class="count-text">3</div>
+
+	</div>
+
+
+	<video id="game-video" muted autoplay playsinline crossorigin="anonymous"></video>
+
+	<canvas id="bg-canvas"></canvas>
+
+	<canvas id="preview-visualizer-canvas" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 150px; z-index: 2;"></canvas>
+
+
+	<!-- Debug Display -->
+
+	<div id="mouse-debug">
+
+    	<div class="debug-label">🎮 SELECTION DEBUG</div>
+
+    	<div><span class="debug-label">Selector Lane:</span> <span class="debug-value" id="current-lane">-</span></div>
+
+    	<div><span class="debug-label">Active Notes:</span> <span class="debug-value" id="active-notes">0</span></div>
+
+	</div>
+
+
+	<div class="ui-layer">
+
+    	<!-- Title Screen -->
+
+    	<div id="screen-title" class="screen active flex-col justify-center items-center cursor-auto" onclick="app.initAudioAndStart()">
+
+        	<div class="stagger-item logo-bop text-[12rem] leading-[0.9] mb-8 text-pink-500 text-center" style="text-shadow: 10px 10px 0 #fff">DANCE<br>FLO</div>
+
+        	<div class="stagger-item font-['Outfit'] text-4xl text-white tracking-widest animate-pulse font-black" style="animation-delay: 0.1s">CLICK TO START</div>
+
+    	</div>
+
+
+    	<!-- Main Menu -->
+
+    	<div id="screen-main" class="screen flex-col items-start justify-center pl-32 cursor-auto">
+
+        	<div class="flex flex-col items-start space-y-4">
+
+            	<button class="stagger-item street-menu-btn" onclick="app.showScreen('screen-select')" style="animation-delay: 0.05s">PLAY</button>
+
+            	<button class="stagger-item street-menu-btn" onclick="app.showScreen('screen-settings')" style="animation-delay: 0.1s">SETTINGS</button>
+
+            	<button class="stagger-item street-menu-btn" onclick="app.showScreen('screen-credits')" style="animation-delay: 0.15s">CREDITS</button>
+
+            	<button class="stagger-item street-menu-btn" onclick="window.location.reload()" style="animation-delay: 0.2s">EXIT</button>
+
+        	</div>
+
+    	</div>
+
+
+    	<!-- Settings Screen -->
+
+    	<div id="screen-settings" class="screen flex-col justify-center items-center cursor-auto">
+
+        	<div class="settings-panel">
+
+            	<div class="settings-title">SETTINGS</div>
+
+            	
+
+            	<div class="settings-item">
+
+                	<div class="settings-label">Music Volume</div>
+
+                	<input type="range" class="slider" id="music-volume" min="0" max="100" value="70" oninput="app.updateMusicVolume(this.value)">
+
+                	<div class="settings-value" id="music-value">70%</div>
+
+            	</div>
+
+
+            	<div class="settings-item">
+
+                	<div class="settings-label">Notes Opacity</div>
+
+                	<input type="range" class="slider" id="notes-opacity" min="0" max="100" value="100" oninput="app.updateNotesOpacity(this.value)">
+
+                	<div class="settings-value" id="opacity-value">100%</div>
+
+            	</div>
+
+
+            	<div class="settings-item">
+
+                	<div class="settings-label">Hit Window</div>
+
+                	<input type="range" class="slider" id="hit-window" min="30" max="200" step="10" value="120" oninput="app.updateHitWindow(this.value)">
+
+                	<div class="settings-value" id="hit-window-value">120ms (NORMAL) 👍</div>
+
+            	</div>
+
+
+            	<div class="settings-item">
+
+                	<div class="settings-label">Debug Display</div>
+
+                	<button class="settings-back" onclick="app.toggleDebug()">Toggle Debug</button>
+
+            	</div>
+
+
+            	<div class="settings-buttons">
+
+                	<button class="settings-back" onclick="app.showScreen('screen-main')">BACK</button>
+
+            	</div>
+
+        	</div>
+
+    	</div>
+
+
+    	<!-- Credits Screen -->
+
+    	<div id="screen-credits" class="screen flex-col justify-center items-center cursor-auto">
+
+        	<div class="credits-panel">
+
+            	<div class="credits-title">CREDITS</div>
+
+            	<div class="credits-text">
+
+                	<strong>DANCE FLO - Selection Mode</strong><br>
+
+                	<strong>VR BOX II v10.2</strong><br><br>
+
+                	
+
+                	<strong>Gameplay:</strong><br>
+
+                	Move selector with mouse or arrow keys<br>
+
+                	Hit notes when they reach the selector<br><br>
+
+                	
+
+                	<strong>Music:</strong><br>
+
+                	"Teach Me How to Dougie"<br>
+
+                	"Tala" by Sarah Geronimo<br><br>
+
+                	
+
+                	<strong>Made with ❤️ and 💜</strong>
+
+            	</div>
+
+            	<div class="settings-buttons">
+
+                	<button class="settings-back" onclick="app.showScreen('screen-main')">BACK</button>
+
+            	</div>
+
+        	</div>
+
+    	</div>
+
+
+<!-- Song Select -->
+
+<div id="screen-select" class="screen cursor-auto">
+
+	<div class="osu-container">
+
+		<div class="song-preview-side">
+
+			<div class="song-preview-content">
+
+				<div id="preview-art" class="stagger-item w-full aspect-square bg-white/5 rounded-[40px] mb-8 flex items-center justify-center overflow-hidden border-[12px] border-white transform rotate-[-3deg] transition-all duration-500" style="max-width: 300px;">
+
+					<div class="text-[14rem] opacity-40 filter grayscale">🎵</div>
+
+				</div>
+
+				<h2 id="preview-title" class="stagger-item text-5xl font-black italic uppercase leading-none mb-3" style="text-shadow: 4px 4px 0 var(--fnf-pink); animation-delay: 0.1s; font-family: 'Outfit', sans-serif;">SONG TITLE</h2>
+
+				<p id="preview-artist" class="stagger-item text-xl text-cyan-400 font-bold tracking-tight uppercase" style="animation-delay: 0.15s; font-family: 'Outfit', sans-serif;">ARTIST NAME</p>
+
+			</div>
+
+			<div class="song-preview-buttons stagger-item" style="animation-delay: 0.2s">
+
+				<button id="btn-start-game" class="w-full bg-white text-black hover:bg-pink-500 hover:text-white py-4 text-3xl font-black skew-x-[-10deg] transition-all transform hover:scale-105 active:scale-95 shadow-xl" style="font-family: 'Outfit', sans-serif; cursor: auto;" onclick="app.startGame()">LETS GO!</button>
+
+				<button class="w-full bg-black/40 hover:bg-white/10 text-white px-8 py-4 text-xl font-bold rounded-xl transition-all" style="font-family: 'Outfit', sans-serif; cursor: auto;" onclick="app.showScreen('screen-main')">BACK</button>
+
+			</div>
+
+		</div>
+
+		<div class="song-list-side" id="song-list"></div>
+
+	</div>
+
+
+	<div id="preview-vis-wrap">
+
+		<canvas id="preview-vis"></canvas>
+
+	</div>
+
+</div>
+
+
+    	<!-- Game Screen -->
+
+    	<div id="screen-game" class="screen">
+
+        	<button id="pause-btn" class="pause-btn" title="Pause (Esc)" onclick="app.togglePause()">II</button>
+
+
+        	<div class="stat-hud">
+
+            	<div class="stat-group">
+
+                	<span class="stat-label">Score</span>
+
+                	<span id="score-val" class="stat-value text-7xl text-white">0</span>
+
+            	</div>
+
+            	<div class="stat-group">
+
+                	<span class="stat-label">Accuracy</span>
+
+                	<span id="game-acc-val" class="stat-value text-4xl text-[var(--fnf-cyan)]">100.0%</span>
+
+            	</div>
+
+            	<div class="stat-group">
+
+                	<span class="stat-label">Combo</span>
+
+                	<span id="combo-val" class="stat-value text-5xl text-[var(--fnf-pink)] transition-opacity opacity-0">0</span>
+
+            	</div>
+
+        	</div>
+
+
+        	<div id="pause-overlay" class="pause-overlay cursor-auto">
+
+            	<div class="pause-panel">
+
+                	<div class="pause-title">PAUSED</div>
+
+                	<div class="pause-buttons">
+
+                    	<button class="pause-btn-primary" onclick="app.resumeGame()">Resume</button>
+
+                    	<button class="pause-btn-secondary" onclick="app.restartGame()">Restart</button>
+
+                    	<button class="pause-btn-secondary" onclick="app.backToSelect()">Song Select</button>
+
+                	</div>
+
+                	<div class="pause-hint">Tip: Press <b>Esc</b> to pause/resume</div>
+
+            	</div>
+
+        	</div>
+
+    	</div>
+
+
+    	<!-- Results Screen -->
+
+    	<div id="screen-results" class="screen bg-black/98 p-24 flex-row items-center justify-between cursor-auto">
+
+        	<div class="w-1/2 flex flex-col items-start">
+
+            	<h1 class="stagger-item font-['Permanent_Marker'] text-[9rem] leading-none text-white mb-10" style="text-shadow: 12px 12px 0 var(--fnf-pink)">FINISH!</h1>
+
+            	<div class="grid grid-cols-2 gap-4 w-full max-w-xl">
+
+                	<div class="stagger-item bg-white/5 p-6 border-l-[10px] border-[var(--fnf-cyan)] flex flex-col" style="animation-delay: 0.1s">
+
+                    	<span class="text-xl font-bold opacity-40" style="font-family: 'Outfit', sans-serif;">PERFECT</span>
+
+                    	<span id="res-perfect" class="text-6xl font-black text-[var(--fnf-cyan)]" style="font-family: 'Outfit', sans-serif;">0</span>
+
+                	</div>
+
+                	<div class="stagger-item bg-white/5 p-6 border-l-[10px] border-[var(--fnf-yellow)] flex flex-col" style="animation-delay: 0.15s">
+
+                    	<span class="text-xl font-bold opacity-40" style="font-family: 'Outfit', sans-serif;">GOOD</span>
+
+                    	<span id="res-good" class="text-6xl font-black text-[var(--fnf-yellow)]" style="font-family: 'Outfit', sans-serif;">0</span>
+
+                	</div>
+
+            	</div>
+
+            	<div class="stagger-item flex space-x-16 items-end mt-14" style="animation-delay: 0.3s">
+
+                	<div><div class="text-xl font-bold text-white/30 uppercase tracking-widest" style="font-family: 'Outfit', sans-serif;">Score</div><div id="res-score" class="text-8xl font-black italic" style="font-family: 'Outfit', sans-serif;">0</div></div>
+
+                	<div><div class="text-xl font-bold text-white/30 uppercase tracking-widest" style="font-family: 'Outfit', sans-serif;">Accuracy</div><div id="res-acc" class="text-8xl font-black text-[var(--fnf-pink)] italic" style="font-family: 'Outfit', sans-serif;">0%</div></div>
+
+            	</div>
+
+            	<div class="stagger-item flex space-x-8 mt-20" style="animation-delay: 0.4s">
+
+                	<button class="street-menu-btn text-5xl" onclick="app.startGame()" style="cursor: auto;">REPLAY</button>
+
+                	<button class="street-menu-btn text-5xl" onclick="app.showScreen('screen-select')" style="cursor: auto;">EXIT</button>
+
+            	</div>
+
+        	</div>
+
+        	<div class="w-1/2 flex flex-col items-center justify-center">
+
+            	<div id="res-rank" class="stagger-item rank-badge" style="animation-delay: 0.5s; font-family: 'Outfit', sans-serif; font-size: 15rem;">S</div>
+
+        	</div>
+
+    	</div>
+
+	</div>
+
+
+	<script src="script.js"></script>
+
+</body>
+
+</html>
